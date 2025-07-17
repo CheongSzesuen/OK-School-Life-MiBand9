@@ -1,0 +1,94 @@
+<template>
+  <div class="indexPage">
+    <image class="icon" src="/common/assets/icon/icon-v4.png"></image>
+
+    <div class="game-name-container">
+      <text class="GameName">{{ GameName }}</text>
+    </div>
+
+    <text class="loading-text">加载中...</text>
+  </div>
+</template>
+
+<script>
+import router from "@system.router";
+
+export default {
+	onInit() {
+		const randomTime = Math.floor(Math.random() * 1000) + 1000;
+
+		setTimeout(() => {
+			router.replace({
+				uri: "pages/index",
+			});
+		}, randomTime);
+	},
+
+	private: {
+		GameName: "OK School Life",
+	},
+};
+</script>
+
+<style>
+.indexPage {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #1a2e22;
+}
+
+.icon {
+  width: 200px;
+  /* 稍微增大图标尺寸 */
+  height: 200px;
+  border-radius: 40px;
+  margin: 20px 0;
+}
+
+.game-name-container {
+  width: 100%;
+  padding: 0 15px;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.GameName {
+  font-size: 55px;
+  /* 从40px增大到48px */
+  color: #ffffff;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  /* 添加文字阴影增强可读性 */
+}
+
+.loading-text {
+  font-size: 40px;
+  /* 从20px增大到28px */
+  color: #b4ffba;
+  animation: blink 1.5s infinite;
+  margin-top: 30px;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 2px;
+  /* 增加字间距 */
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+</style>
