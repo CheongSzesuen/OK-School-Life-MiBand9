@@ -1,581 +1,580 @@
 <template>
-  <div class="container">
-    <div class="spacer"></div>
-    <div class="header">
-      <div class="back-btn" onclick="backToindex">
-        <text class="back-icon">←</text>
-      </div>
-      <!-- 新增详情按钮 -->
-      <div class="detail-btn" onclick="goToAbout">
-        <text class="detail-icon">⋮</text>
-      </div>
-    </div>
-    <div class="main-area">
-      <text class="question" if="{{currentQuestion}}">{{ currentQuestion }}</text>
-      <div class="buttons-container">
-        <div class="buttons" if="{{showOptions}}">
-          <block for="{{options}}">
-            <div class="btn" onClick="onOptionClick($item.key)">
-              <text class="btn-text">{{ $item.text }}</text>
-            </div>
-          </block>
-          <text if="!options || options.length === 0" class="error-hint">暂无有效选项</text>
-        </div>
-      </div>
-      <div class="result-area" if="{{showResult}}">
-        <text class="result">{{ resultText }}</text>
-        <text class="achievement" if="{{achievementText}}">{{ achievementText }}</text>
-        <div class="btn" onClick="onContinue">
-          <text class="btn-text">继续</text>
-        </div>
-      </div>
-    </div>
-  </div>
+	<div class="container">
+		<!-- 顶部容器 -->
+		<div class="header">
+			<image class="back-btn" src="../../common/assets/backButton/backButton.png" onclick="backToindex"></image>
+		</div>
+
+		<!-- 主内容区域 -->
+		<div class="main-area">
+			<text class="question" if="{{currentQuestion}}">
+				{{ currentQuestion }}
+			</text>
+
+			<!-- 内容区域 - 优化布局 -->
+			<div class="content-area">
+				<!-- 选项列表 - 统一DOM结构 -->
+				<list class="options-list" if="{{showOptions}}">
+					<list-item for="{{options}}" class="btn" type="option-item" onclick="onOptionClick($item.key)">
+						<div class="btn-content">
+							<marquee class="btn-marquee" scrollamount="25" loop="-1">
+								{{ $item.text }}
+							</marquee>
+						</div>
+					</list-item>
+					<list-item if="{{!options || options.length === 0}}" class="error-hint" type="error-item">
+						<div class="btn-content">
+							<text>暂无有效选项</text>
+						</div>
+					</list-item>
+				</list>
+
+				<!-- 结果区域 -->
+				<div class="result-container" if="{{showResult}}">
+					<text class="result">{{ resultText }}</text>
+					<div class="achievement-box" if="{{achievementText}}">
+						<text class="achievement">{{ achievementText }}</text>
+					</div>
+					<div class="continue-btn" onclick="onContinue">
+						<text class="btn-text">继续</text>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 底部区域 -->
+		<div class="footer">
+			<image class="detail-btn" src="../../common/assets/detailButton/detailButton.png" onclick="goToAbout"></image>
+		</div>
+	</div>
 </template>
 
 <script>
-import router from "@system.router"
-import storage from "@system.storage"
-import eventsData from "../../common/data/events.json"
+import router from "@system.router";
+import storage from "@system.storage";
+import eventsData from "../../common/data/events.json";
 
 export default {
-  private: {
-    questionIdx: 0,
-    currentQuestion: "",
-    options: [],
-    resultText: "",
-    achievementText: "",
-    showOptions: true,
-    showResult: false,
-    eventsData: {},
-    groupKey: "",
-    eventIdx: 0,
-    usedRandomEvents: [],
-    stage: "choose_school",
-    currentEvent: null,
-    currentRandomIdx: -1,
-    school: "",
-    achievedList: [],
-    achievementMap: {},
-    version: "", // 添加版本号变量
-    name: "" // 添加名称变量
-  },
+	private: {
+		questionIdx: 0,
+		currentQuestion: "",
+		options: [],
+		resultText: "",
+		achievementText: "",
+		showOptions: true,
+		showResult: false,
+		eventsData: {},
+		groupKey: "",
+		eventIdx: 0,
+		usedRandomEvents: [],
+		stage: "choose_school",
+		currentEvent: null,
+		currentRandomIdx: -1,
+		school: "",
+		achievedList: [],
+		achievementMap: {},
+		version: "",
+	},
 
-  onInit() {
-    // 从路由参数中获取版本和名称
-    if (this.$page && this.$page.param) {
-      this.version = this.$page.param.version || ""
-      this.name = this.$page.param.name || ""
-    }
+	onInit() {
+		if (this.$page && this.$page.param) {
+			this.version = this.$page.param.version || "";
+			this.name = this.$page.param.name || "";
+		}
 
-    this.stage = "choose_school"
-    this.usedRandomEvents = []
-    this.eventIdx = 0
-    this.eventsData = eventsData
-    this.loadAchievements()
-    this.showChooseSchool()
-  },
+		this.stage = "choose_school";
+		this.usedRandomEvents = [];
+		this.eventIdx = 0;
+		this.eventsData = eventsData;
+		this.loadAchievements();
+		this.showChooseSchool();
+	},
 
-  loadAchievements() {
-    storage.get({
-      key: "achievements",
-      success: (data) => {
-        if (data) {
-          try {
-            this.achievedList = JSON.parse(data) || []
-            this.achievementMap = this.achievedList.reduce((map, key) => {
-              map[key] = true
-              return map
-            }, {})
-            console.log("加载的成就数据:", this.achievedList)
-          } catch (e) {
-            console.error("成就数据解析失败", e)
-          }
-        }
-      },
-      fail: (err, code) => {
-        console.error(`成就加载失败，错误码：${code}`)
-      }
-    })
-  },
+	loadAchievements() {
+		storage.get({
+			key: "achievements",
+			success: (data) => {
+				if (data) {
+					try {
+						this.achievedList = JSON.parse(data) || [];
+						this.achievementMap = this.achievedList.reduce((map, key) => {
+							map[key] = true;
+							return map;
+						}, {});
+					} catch (e) {
+						console.error("成就数据解析失败", e);
+					}
+				}
+			},
+			fail: (err, code) => {
+				console.error(`成就加载失败，错误码：${code}`);
+			},
+		});
+	},
 
-  saveAchievement(eventId, choiceKey) {
-    // 统一成就key格式：固定事件"event_X_Y_Z"，随机事件"random_X_Y"
-    const isRandom = eventId.startsWith("random")
-    const achievementKey = isRandom
-      ? `random_${eventId.split("_")[1]}_${choiceKey}`
-      : `event_${eventId.split("_")[1]}_${eventId.split("_")[2]}_${choiceKey}`
+	saveAchievement(eventId, choiceKey) {
+		const isRandom = eventId.startsWith("random");
+		const achievementKey = isRandom
+			? `random_${eventId.split("_")[1]}_${choiceKey}`
+			: `event_${eventId.split("_")[1]}_${eventId.split("_")[2]}_${choiceKey}`;
 
-    if (this.achievementMap[achievementKey]) {
-      console.log("成就已存在:", achievementKey)
-      return false
-    }
+		if (this.achievementMap[achievementKey]) {
+			return false;
+		}
 
-    this.achievedList.push(achievementKey)
-    this.achievementMap[achievementKey] = true
+		this.achievedList.push(achievementKey);
+		this.achievementMap[achievementKey] = true;
 
-    storage.set({
-      key: "achievements",
-      value: JSON.stringify(this.achievedList),
-      success: () => {
-        console.log("成就保存成功:", achievementKey)
-        // 触发成就页面更新
-        this.$app.$def.achievementUpdated = true
-      },
-      fail: (err, code) => {
-        console.error(`成就保存失败，错误码：${code}`)
-        this.achievedList.pop()
-        delete this.achievementMap[achievementKey]
-      }
-    })
-    return true
-  },
+		storage.set({
+			key: "achievements",
+			value: JSON.stringify(this.achievedList),
+			success: () => {
+				this.$app.$def.achievementUpdated = true;
+			},
+			fail: (err, code) => {
+				console.error(`成就保存失败，错误码：${code}`);
+				this.achievedList.pop();
+				delete this.achievementMap[achievementKey];
+			},
+		});
+		return true;
+	},
 
-  showChooseSchool() {
-    this.stage = "choose_school"
-    this.currentQuestion = "请选择你的入学学校："
-    this.options = [
-      {key: "1", text: "羊县中学", group: "group_1"},
-      {key: "2", text: "闪西省汗忠中学", group: "group_2"},
-      {key: "3", text: "汗忠市龙港高级中学", group: "group_3"}
-    ]
-    this.showOptions = true
-    this.showResult = false
-    this.resultText = ""
-    this.achievementText = ""
-    this.currentEvent = null
-  },
+	showChooseSchool() {
+		this.stage = "choose_school";
+		this.currentQuestion = "请选择你的入学学校：";
+		this.options = [
+			{ key: "1", text: "羊县中学", group: "group_1" },
+			{ key: "2", text: "闪西省汗忠中学", group: "group_2" },
+			{ key: "3", text: "汗忠市龙港高级中学", group: "group_3" },
+		];
+		this.showOptions = true;
+		this.showResult = false;
+	},
 
-  onOptionClick(key) {
-    if (!key) return
+	onOptionClick(key) {
+		if (!key) return;
 
-    if (this.stage === "choose_school") {
-      const selectedOption = this.options.find((opt) => opt.key === key)
-      this.school = selectedOption.text
-      this.groupKey = selectedOption.group // 使用与学校绑定的固定事件组
-      this.eventIdx = 0
-      this.stage = "fixed_event"
-      this.showFixedEvent()
-    } else if (this.stage === "fixed_event") {
-      this.handleFixedChoice(key)
-    } else if (this.stage === "random_event") {
-      this.handleRandomChoice(key)
-    }
-  },
+		if (this.stage === "choose_school") {
+			const selectedOption = this.options.find((opt) => opt.key === key);
+			this.school = selectedOption.text;
+			this.groupKey = selectedOption.group;
+			this.eventIdx = 0;
+			this.stage = "fixed_event";
+			this.showFixedEvent();
+		} else if (this.stage === "fixed_event") {
+			this.handleFixedChoice(key);
+		} else if (this.stage === "random_event") {
+			this.handleRandomChoice(key);
+		}
+	},
 
-  showFixedEvent() {
-    const group = this.eventsData.events[this.groupKey] || []
+	showFixedEvent() {
+		const group = this.eventsData.events[this.groupKey] || [];
 
-    if (this.eventIdx < group.length) {
-      const event = group[this.eventIdx]
-      this.currentEvent = event
-      //在加载时预处理去除 >>>
-      this.currentQuestion = event.question.replace(/^>>>/, "")
+		if (this.eventIdx < group.length) {
+			const event = group[this.eventIdx];
+			this.currentEvent = event;
+			this.currentQuestion = event.question.replace(/^>>>/, "");
 
-      this.options = []
-      for (const choiceKey in event.choices) {
-        this.options.push({
-          key: choiceKey,
-          text: event.choices[choiceKey]
-        })
-      }
+			this.options = [];
+			for (const choiceKey in event.choices) {
+				this.options.push({
+					key: choiceKey,
+					text: event.choices[choiceKey],
+				});
+			}
 
-      this.showOptions = true
-      this.showResult = false
-      this.achievementText = ""
-    } else {
-      this.stage = "random_event"
-      this.showRandomEvent()
-    }
-  },
+			this.showOptions = true;
+			this.showResult = false;
+		} else {
+			this.stage = "random_event";
+			this.showRandomEvent();
+		}
+	},
 
-  handleFixedChoice(key) {
-    if (!this.currentEvent) return
+	handleFixedChoice(key) {
+		if (!this.currentEvent) return;
 
-    const event = this.currentEvent
-    let result = event.results[key] || ""
+		const event = this.currentEvent;
+		let result = event.results[key] || "";
 
-    if (Array.isArray(result)) {
-      const rand = Math.random()
-      let cumulativeProb = 0
-      for (const item of result) {
-        cumulativeProb += item.prob || 0
-        if (rand <= cumulativeProb) {
-          result = item.text
-          if (item.end_game) {
-            this.stage = "end"
-          }
-          break
-        }
-      }
-    }
+		if (Array.isArray(result)) {
+			const rand = Math.random();
+			let cumulativeProb = 0;
+			for (const item of result) {
+				cumulativeProb += item.prob || 0;
+				if (rand <= cumulativeProb) {
+					result = item.text;
+					if (item.end_game) {
+						this.stage = "end";
+					}
+					break;
+				}
+			}
+		}
 
-    this.resultText = result
+		this.resultText = result;
 
-    if (event.achievements && event.achievements[key]) {
-      const achievement = event.achievements[key]
-      const isNew = this.saveAchievement(event.id, key)
-      const achievementStr = Array.isArray(achievement) ? achievement.join("、") : achievement
+		if (event.achievements && event.achievements[key]) {
+			const achievement = event.achievements[key];
+			const isNew = this.saveAchievement(event.id, key);
+			const achievementStr = Array.isArray(achievement)
+				? achievement.join("、")
+				: achievement;
 
-      this.achievementText = `获得成就：${achievementStr}${isNew ? "" : " (已获得)"}`
-    } else {
-      this.achievementText = ""
-    }
+			this.achievementText = `获得成就：${achievementStr}${
+				isNew ? "" : " (已获得)"
+			}`;
+		} else {
+			this.achievementText = "";
+		}
 
-    this.showOptions = false
-    this.showResult = true
+		this.showOptions = false;
+		this.showResult = true;
 
-    if (event.end_game_choices && event.end_game_choices.includes(key)) {
-      this.stage = "end"
-    }
-  },
+		if (event.end_game_choices && event.end_game_choices.includes(key)) {
+			this.stage = "end";
+		}
+	},
 
-  onContinue() {
-    if (this.stage === "end") {
-      this.routeBack()
-    } else if (this.stage === "fixed_event") {
-      this.eventIdx += 1
-      this.showFixedEvent()
-    } else if (this.stage === "random_event") {
-      this.showRandomEvent()
-    }
-  },
+	onContinue() {
+		if (this.stage === "end") {
+			this.routeBack();
+		} else if (this.stage === "fixed_event") {
+			this.eventIdx += 1;
+			this.showFixedEvent();
+		} else if (this.stage === "random_event") {
+			this.showRandomEvent();
+		}
+	},
 
-  showRandomEvent() {
-    const allRandom = this.eventsData.random_events || []
-    const available = allRandom.filter((_, idx) => !this.usedRandomEvents.includes(idx))
+	showRandomEvent() {
+		const allRandom = this.eventsData.random_events || [];
+		const available = allRandom.filter(
+			(_, idx) => !this.usedRandomEvents.includes(idx)
+		);
 
-    if (available.length === 0) {
-      this.currentQuestion = ""
-      this.resultText = "所有事件已完成！"
-      this.showOptions = false
-      this.showResult = true
-      this.stage = "end"
-      return
-    }
+		if (available.length === 0) {
+			this.currentQuestion = "";
+			this.resultText = "所有事件已完成！";
+			this.showOptions = false;
+			this.showResult = true;
+			this.stage = "end";
+			return;
+		}
 
-    const randomIndex = Math.floor(Math.random() * available.length)
-    const event = available[randomIndex]
-    this.currentRandomIdx = allRandom.indexOf(event)
-    this.currentEvent = event
-    this.currentQuestion = event.question.replace(/^>>>/, "")
+		const randomIndex = Math.floor(Math.random() * available.length);
+		const event = available[randomIndex];
+		this.currentRandomIdx = allRandom.indexOf(event);
+		this.currentEvent = event;
+		this.currentQuestion = event.question.replace(/^>>>/, "");
 
-    this.options = []
-    for (const choiceKey in event.choices) {
-      this.options.push({
-        key: choiceKey,
-        text: event.choices[choiceKey]
-      })
-    }
+		this.options = [];
+		for (const choiceKey in event.choices) {
+			this.options.push({
+				key: choiceKey,
+				text: event.choices[choiceKey],
+			});
+		}
 
-    this.showOptions = true
-    this.showResult = false
-    this.achievementText = ""
-  },
+		this.showOptions = true;
+		this.showResult = false;
+	},
 
-  handleRandomChoice(key) {
-    if (!this.currentEvent) return
+	handleRandomChoice(key) {
+		if (!this.currentEvent) return;
 
-    const event = this.currentEvent
-    let result = event.results[key] || ""
+		const event = this.currentEvent;
+		let result = event.results[key] || "";
 
-    if (Array.isArray(result)) {
-      const rand = Math.random()
-      let cumulativeProb = 0
-      for (const item of result) {
-        cumulativeProb += item.prob || 0
-        if (rand <= cumulativeProb) {
-          result = item.text
-          if (item.end_game) {
-            this.stage = "end"
-          }
-          break
-        }
-      }
-    }
+		if (Array.isArray(result)) {
+			const rand = Math.random();
+			let cumulativeProb = 0;
+			for (const item of result) {
+				cumulativeProb += item.prob || 0;
+				if (rand <= cumulativeProb) {
+					result = item.text;
+					if (item.end_game) {
+						this.stage = "end";
+					}
+					break;
+				}
+			}
+		}
 
-    this.resultText = result
+		this.resultText = result;
 
-    if (event.achievements && event.achievements[key]) {
-      const achievement = event.achievements[key]
-      const isNew = this.saveAchievement(event.id, key)
-      const achievementStr = Array.isArray(achievement) ? achievement.join("、") : achievement
+		if (event.achievements && event.achievements[key]) {
+			const achievement = event.achievements[key];
+			const isNew = this.saveAchievement(event.id, key);
+			const achievementStr = Array.isArray(achievement)
+				? achievement.join("、")
+				: achievement;
 
-      this.achievementText = `获得成就：${achievementStr}${isNew ? "" : " (已获得)"}`
-    } else {
-      this.achievementText = ""
-    }
+			this.achievementText = `获得成就：${achievementStr}${
+				isNew ? "" : " (已获得)"
+			}`;
+		} else {
+			this.achievementText = "";
+		}
 
-    this.showOptions = false
-    this.showResult = true
-    this.usedRandomEvents.push(this.currentRandomIdx)
+		this.showOptions = false;
+		this.showResult = true;
+		this.usedRandomEvents.push(this.currentRandomIdx);
 
-    if (event.end_game_choices && event.end_game_choices.includes(key)) {
-      this.stage = "end"
-    }
-  },
+		if (event.end_game_choices && event.end_game_choices.includes(key)) {
+			this.stage = "end";
+		}
+	},
 
-  backToindex() {
-    // 只获取成就数据
-    storage.get({
-      key: "achievements",
-      success: (data) => {
-        router.replace({
-          uri: "pages/index",
-          params: {
-            achievements: data || "[]" // 确保始终有默认值
-          }
-        })
-      },
-      fail: () => {
-        // 如果获取失败，仍然传递空数组
-        router.replace({
-          uri: "pages/index",
-          params: {
-            achievements: "[]"
-          }
-        })
-      }
-    })
-  },
+	backToindex() {
+		storage.get({
+			key: "achievements",
+			success: (data) => {
+				router.replace({
+					uri: "pages/index",
+					params: {
+						achievements: data || "[]",
+						version: this.version,
+					},
+				});
+			},
+			fail: () => {
+				router.replace({
+					uri: "pages/index",
+					params: {
+						achievements: "[]",
+						version: this.version,
+					},
+				});
+			},
+		});
+	},
 
-  routeBack() {
-    this.backToindex()
-  },
-  onDestroy() {
-    this.currentEvent = null
-  },
-  goToAbout() {
-    router.push({
-      uri: "pages/about",
-      params: {
-        version: this.version,
-        name: this.name
-      }
-    })
-  }
-}
+	routeBack() {
+		this.backToindex();
+	},
+
+	goToAbout() {
+		router.push({
+			uri: "pages/about",
+			params: {
+				version: this.version,
+			},
+		});
+	},
+};
 </script>
 
 <style>
 /* 基础容器样式 */
 .container {
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  height: 100%;
-  min-width: 336px;
-  min-height: 480px;
-  background-color: #1a2e22;
-  padding: 0;
-  transition: transform 0.3s ease;
-}
-
-/* 顶部间距 */
-.spacer {
-  height: 16px;
-  width: 100%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	height: 100%;
+	min-width: 336px;
+	min-height: 480px;
+	background-color: #1a2e22;
+	padding: 0;
 }
 
 /* 头部区域 */
 .header {
-  width: 84%;
-  height: 80px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 0 8%;
+	width: 100%;
+	height: 180px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-top: 10px;
 }
 
-.back-btn {
-  width: 70px;
-  height: 40px;
-  background-color: #53a47a;
-  border: 2px solid #b5dbc7;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  border-radius: 14px;
-}
-
-.back-icon {
-  font-size: 28px;
-  color: #e8f3f5;
-}
-
-/* 详情按钮（三点菜单） */
-.detail-btn {
-  width: 40px;
-  height: 40px;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  position: absolute;
-  right: 5%;
-  /* 从8%调整为5% */
-  top: 50%;
-  /* 垂直居中 */
-  transform: translateY(-50%);
-  /* 精确垂直居中 */
-  z-index: 10;
-  /* 确保在最上层 */
-}
-
-.detail-icon {
-  font-size: 28px;
-  color: #e8f3f5;
-  transform: rotate(90deg);
-}
-
-/* 主内容区域 */
+/* 主内容区域 - 优化布局 */
 .main-area {
-  flex-direction: column;
-  align-items: center;
-  width: 90%;
-  border-radius: 20px;
-  flex-grow: 1;
-  padding: 5% 5% 0 5%;
-  justify-content: flex-start;
-  background-color: rgba(232, 243, 245, 0.1);
-  margin-bottom: 30px;
+	width: 90%;
+	flex-grow: 1;
+	background-color: rgba(232, 243, 245, 0.1);
+	flex-direction: column;
+	align-items: center;
+	border-radius: 40px;
+	margin: 10px 0;
+	padding: 15px;
+	justify-content: flex-start;
 }
 
-/* 问题文本 */
+/* 问题文本 - 显著增大字号 */
 .question {
-  font-size: 34px;
-  color: #f8f8ff;
-  text-align: center;
-  margin: 30px 0 28px 0;
-  padding: 0 8%;
-  line-height: 42px;
-  font-weight: bold;
-  position: relative;
-  top: 8px;
-  word-break: break-word;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	font-size: 52px;
+	color: #f8f8ff;
+	text-align: center;
+	margin: 8px 0 20px 0;
+	padding: 0 5%;
+	line-height: 56px;
+	font-weight: bold;
+	word-break: break-word;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* 按钮容器 */
-.buttons {
-  flex-direction: column;
-  width: 100%;
-  max-width: 310px;
-  margin-bottom: 20px;
-  align-items: center;
-  justify-content: flex-start;
+/* 内容区域 - 关键优化 */
+.content-area {
+	width: 100%;
+	flex-grow: 1;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
 }
 
-/* 通用按钮样式 */
+/* 选项列表 - 关键优化 */
+.options-list {
+	width: 100%;
+	flex-grow: 1;
+	flex-direction: column;
+	align-items: center;
+	overflow-y: auto;
+	padding: 5px 0;
+}
+
+/* 按钮样式 - 增大高度 */
 .btn {
-  width: 100%;
-  min-height: 60px;
-  margin-top: 20px;
-  border-radius: 20px;
-  background-color: #69ba83;
-  box-shadow: 0 5px 15px rgba(83, 164, 122, 0.4);
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  padding: 10px 0;
-  overflow: hidden;
+	width: 100%;
+	height: 140px;
+	margin: 10px 0;
+	border-radius: 40px;
+	background-color: #69ba83;
+	justify-content: center;
+	align-items: center;
+	padding: 5px 0;
+	overflow: hidden;
+	box-shadow: 0 5px 15px rgba(83, 164, 122, 0.4);
 }
 
-.btn-text {
-  font-size: 28px;
-  color: #fff;
-  font-weight: bold;
-  letter-spacing: 2px;
-  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
-  width: 95%;
-  text-align: center;
-  word-break: break-word;
-  padding: 5px 0;
+/* 按钮内容容器 */
+.btn-content {
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
 }
 
-/* 按钮按下状态 */
-.btn-pressed {
-  background-color: #3a8b63;
+/* 跑马灯样式 */
+.btn-marquee {
+	width: 90%;
+	height: 100%;
+	color: #fff;
+	font-size: 46px;
+	font-weight: bold;
+	letter-spacing: 1.5px;
+	text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+	text-align: center;
+	word-break: break-word;
+	padding: 10px 0;
 }
 
-/* 错误提示 */
+/* 列表项样式 */
+list-item {
+	width: 100%;
+	height: 140px;
+}
+
+/* 错误提示 - 增大字号 */
 .error-hint {
-  color: #ff7e7e;
-  text-align: center;
-  margin-top: 16px;
-  font-size: 18px;
-  letter-spacing: 1.2px;
+	color: #ff7e7e;
+	text-align: center;
+	margin-top: 16px;
+	font-size: 26px;
 }
 
-/* 结果区域 */
-.result-area {
-  margin-top: 28px;
-  align-items: center;
-  width: 94%;
-  padding: 20px 16px;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background-color: rgba(109, 139, 140, 0.2);
-  border-radius: 20px;
+/* 结果容器 - 调整高度 */
+.result-container {
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 15px 0;
+	margin-top: 10px;
+	border-radius: 20px;
+	background-color: rgba(109, 139, 140, 0.2);
 }
 
+/* 结果文本 - 增大字号和行高 */
 .result {
-  font-size: 28px;
-  color: #b4ffba;
-  text-align: center;
-  padding: 0 16px;
-  margin-bottom: 16px;
-  line-height: 36px;
-  word-break: break-all;
+	font-size: 44px;
+	color: #b4ffba;
+	text-align: center;
+	padding: 0 16px;
+	margin-bottom: 20px;
+	line-height: 52px;
+	word-break: break-all;
 }
 
-/* 成就提示 */
+/* 成就容器 */
+.achievement-box {
+	width: 95%;
+	padding: 20px;
+	margin: 15px 0;
+	background-color: rgba(200, 255, 232, 0.1);
+	border-radius: 20px;
+	justify-content: center;
+	align-items: center;
+}
+
+/* 成就提示 - 增大字号和调整布局 */
 .achievement {
-  font-size: 26px;
-  color: #c8ffe8;
-  text-align: center;
-  margin: 16px 0;
-  padding: 12px 16px;
-  line-height: 32px;
-  font-weight: 500;
-  background-color: rgba(200, 255, 232, 0.1);
-  border-radius: 16px;
-  width: 90%;
+	font-size: 40px;
+	color: #c8ffe8;
+	text-align: center;
+	line-height: 48px;
+	font-weight: 500;
+	word-break: break-word;
 }
 
-/* 空状态样式 */
-.empty-content {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+/* 继续按钮 - 优化样式 */
+.continue-btn {
+	width: 100%;
+	height: 140px;
+	margin-top: 25px;
+	border-radius: 40px;
+	background-color: #69ba83;
+	justify-content: center;
+	align-items: center;
+	padding: 10px 0;
+	overflow: hidden;
+	box-shadow: 0 5px 15px rgba(83, 164, 122, 0.4);
 }
 
-.empty-text {
-  font-size: 28px;
-  color: #e8f3f5;
-  margin-top: 20px;
+/* 按钮文字样式 - 增大字号 */
+.btn-text {
+	font-size: 46px;
+	color: #fff;
+	font-weight: bold;
+	letter-spacing: 1.5px;
+	text-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);
+	width: 100%;
+	text-align: center;
+	word-break: break-word;
+	padding: 5px 0;
+}
+/* 底部区域 */
+.footer {
+	width: 100%;
+	height: 180px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-bottom: 10px;
 }
 
-/* 刷新按钮 */
-.action-btn {
-  position: fixed;
-  right: 30px;
-  bottom: 30px;
-  width: 60px;
-  height: 60px;
-  border-radius: 30px;
-  background-color: #1e90ff;
-  justify-content: center;
-  align-items: center;
-  display: flex;
+/* 返回按钮图片 */
+.back-btn {
+	width: 180px;
+	height: 180px;
 }
 
-.refresh-icon {
-  font-size: 28px;
-  color: #ffffff;
+/* 详情按钮图片 */
+.detail-btn {
+	width: 180px;
+	height: 180px;
 }
 </style>

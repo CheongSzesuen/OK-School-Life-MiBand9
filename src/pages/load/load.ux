@@ -3,7 +3,7 @@
     <image class="icon" src="/common/assets/icon/icon-v4.png"></image>
 
     <div class="game-name-container">
-      <text class="GameName">{{ GameName }}</text>
+      <text class="GameName">OK School Life</text>
     </div>
 
     <text class="loading-text">加载中...</text>
@@ -22,10 +22,6 @@ export default {
 				uri: "pages/index",
 			});
 		}, randomTime);
-	},
-
-	private: {
-		GameName: "OK School Life",
 	},
 };
 </script>

@@ -1,193 +1,201 @@
 <template>
-  <div class="container">
-    <!-- 头部 -->
-    <div class="header">
-      <div class="back-btn" onclick="routeBack">
-        <text class="back-icon">←</text>
-      </div>
-      <text class="title">关于</text>
-      <div class="empty-btn"></div>
-    </div>
+	<div class="container">
+		<!-- 顶部返回按钮 -->
+		<div class="header">
+			<image class="back-btn" src="../../common/assets/backButton/backButton.png" onclick="backToPrevious"></image>
+		</div>
 
-    <!-- 主内容区 -->
-    <div class="main-area">
-      <!-- 程序信息卡片 -->
-      <div class="info-card">
-        <div class="info-top">
-          <text class="app-name">OK School Life</text>
-          <text class="app-version">beta {{ version }}</text>
-        </div>
-        <div class="info-bottom">
-          <div class="developer-info">
-            <text class="developer-name">WaiJade</text>
-            <text class="developer-name">StillAlive</text>
-          </div>
-          <image class="app-icon" src="../../common/assets/icon/icon-v4.png"></image>
-        </div>
-      </div>
+		<!-- 主内容区域 -->
+		<div class="main-area">
+			<!-- 卡片区域 -->
+			<div class="card">
+				<!-- 游戏名称 -->
+				<text class="game-name">OK School Life</text>
 
-      <!-- 捐献按钮 -->
-      <div class="donate-btn" onclick="goToDonate">
-        <text class="donate-text">捐献支持</text>
-      </div>
-    </div>
-  </div>
+				<!-- 版本号 -->
+				<text class="game-version">{{ version }}</text>
+
+				<!-- 图标 -->
+				<image class="game-icon" src="../../common/assets/icon/icon-v4.png"></image>
+			</div>
+
+			<!-- 开发者信息 -->
+			<div class="developer-section">
+				<text class="section-title">Developers</text>
+
+				<!-- 开发者列表 -->
+				<div class="developer-list">
+					<div class="developer-item">
+						<image class="developer-avatar" src="../../common/assets/avatar/WaiJade.png"></image>
+						<text class="developer-name">WaiJade</text>
+					</div>
+					<div class="developer-item">
+						<image class="developer-avatar" src="../../common/assets/avatar/StillAlive.png"></image>
+						<text class="developer-name">StillAlive</text>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 底部按钮 -->
+		<div class="footer">
+			<image class="info-btn" src="../../common/assets/infoButton/infoButton.png" onclick="goToDonate"></image>
+		</div>
+	</div>
 </template>
 
 <script>
-import router from "@system.router"
-
+import router from "@system.router";
 export default {
-  private: {
-    version: "",
-    name: ""
-  },
+	private: {
+		version: "",
+	},
+	backToPrevious() {
+		router.back();
+	},
 
-  onInit() {
-    // 直接从路由参数获取版本和应用名称
-    this.version = this.$page.param.version
-    this.name = this.$page.param.name
-  },
-
-  routeBack() {
-    router.back()
-  },
-
-  goToDonate() {
-    router.push({
-      uri: "pages/donation",
-      params: {
-        version: this.version,
-        name: this.name
-      }
-    })
-  }
-}
+	goToDonate() {
+		router.push({
+			uri: "pages/donation",
+			params: { version: this.version },
+		});
+	},
+};
 </script>
 
 <style>
 .container {
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  min-width: 336px;
-  min-height: 480px;
-  background-color: #1a2e22;
-  padding: 20px 10% 0;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	background-color: #1a2e22;
+	padding: 0;
+	margin: 0;
 }
 
 .header {
-  width: 84%;
-  height: 80px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  padding: 0 8%;
+	width: 100%;
+	height: 180px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-top: 10px;
 }
 
 .back-btn {
-  width: 70px;
-  height: 40px;
-  background-color: #53a47a;
-  border: 2px solid #b5dbc7;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  border-radius: 14px;
-}
-
-.back-icon {
-  font-size: 28px;
-  color: #e8f3f5;
-}
-
-.title {
-  font-size: 38px;
-  color: #e8f3f5;
-  font-weight: bold;
-  text-align: center;
-}
-
-.empty-btn {
-  width: 70px;
+	width: 150px;
+	height: 150px;
 }
 
 .main-area {
-  flex-direction: column;
-  align-items: center;
-  width: 90%;
-  height: 380px;
-  justify-content: space-between;
+	flex-grow: 1;
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
 }
 
-/* 信息卡片样式 */
-.info-card {
-  width: 100%;
-  height: 220px;
-  background-color: #69ba83;
-  border-radius: 20px;
-  padding: 20px 30px;
-  flex-direction: column;
-  justify-content: space-between;
+.card {
+	width: 90%;
+	height: 400px;
+	border-radius: 50px;
+	/* background-color: #84c493; */
+	background-color: #1a2e22;
+	border: 9px solid #a9d6c2;
+	padding: 20px;
+	margin-top: 40px;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: flex-start;
+	position: relative;
 }
 
-.info-top {
-  flex-direction: column;
+.game-name {
+	font-size: 60px;
+	font-weight: 600;
+	color: #ffffff;
+	text-align: left;
+	width: 100%;
+	line-height: 1.3;
+	margin-top: 0;
+	margin-bottom: 20px;
 }
 
-.app-name {
-  font-size: 40px;
-  color: #e8f3f5;
-  font-weight: bold;
-  margin-bottom: 10px;
+.game-version {
+	font-size: 60px;
+	font-weight: 500;
+	color: rgba(255, 255, 255, 0.8);
+	margin-top: 0;
 }
 
-.app-version {
-  font-size: 28px;
-  color: #e8f3f5;
+.game-icon {
+	width: 200px;
+	height: 200px;
+	border-radius: 24px;
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+	object-fit: contain;
 }
 
-.info-bottom {
-  width: 100%;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+.developer-section {
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 20px;
+	padding: 0 10%;
 }
 
-.developer-info {
-  flex-direction: column;
+.section-title {
+	font-size: 75px;
+	font-weight: 700;
+	color: rgba(255, 255, 255, 0.6);
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+.developer-list {
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	padding: 0 20px;
+}
+
+.developer-item {
+	width: 100%;
+	height: 80px;
+	flex-direction: row;
+	justify-content: center; /* 水平居中 */
+	align-items: center; /* 垂直居中 */
+	margin: 10px 0;
+	padding: 0;
+}
+
+.developer-avatar {
+	width: 70px;
+	height: 70px;
+	border-radius: 35px;
+	margin-right: 20px;
 }
 
 .developer-name {
-  font-size: 28px;
-  color: #e8f3f5;
-  font-weight: bold;
-  line-height: 34px;
+	font-size: 60px;
+	font-weight: 700;
+	color: #ffffff;
 }
 
-.app-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 20px;
-  border: 2px solid #69ba83;
+.footer {
+	width: 100%;
+	height: 180px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-bottom: 10px;
 }
 
-/* 捐献按钮样式 */
-.donate-btn {
-  width: 100%;
-  height: 80px;
-  background-color: #76bf73;
-  border-radius: 20px;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-}
-
-.donate-text {
-  font-size: 34px;
-  color: #e8f3f5;
-  font-weight: bold;
+.info-btn {
+	width: 150px;
+	height: 150px;
 }
 </style>

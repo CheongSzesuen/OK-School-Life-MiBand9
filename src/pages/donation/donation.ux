@@ -1,179 +1,129 @@
 <template>
-  <div class="container">
-    <!-- 头部 -->
-    <div class="header">
-      <div class="back-btn" onclick="routeBack">
-        <text class="back-icon">←</text>
-      </div>
-      <text class="title">捐赠支持</text>
-      <div class="empty-btn"></div>
-    </div>
+	<div class="container">
+		<!-- 顶部返回按钮 -->
+		<div class="header">
+			<image class="back-btn" src="../../common/assets/backButton/backButton.png" onclick="backToPrevious"></image>
+		</div>
 
-    <!-- 主内容区 -->
-    <div class="main-area">
-      <!-- 支付方式选择 -->
-      <div class="payment-options">
-        <div class="option wechat {{currentTab === 1 ? 'active' : ''}}" onclick="setTab(1)">
-          <text>微信</text>
-        </div>
-        <div class="option alipay {{currentTab === 0 ? 'active' : ''}}" onclick="setTab(0)">
-          <text>支付宝</text>
-        </div>
-      </div>
+		<!-- 主内容区域 -->
+		<div class="main-area">
+			<!-- 二维码区域 -->
+			<div class="qrcode-container">
+				<image class="qrcode-image" if="{{ currentTab === 0 }}"
+					src="/common/assets/donationQRcode/alipay_qrcode.png"></image>
+				<image class="qrcode-image" if="{{ currentTab === 1 }}"
+					src="/common/assets/donationQRcode/wechat_qrcode.png"></image>
+			</div>
+		</div>
 
-      <!-- 二维码区域（最大尺寸） -->
-      <div class="qrcode-container">
-        <image class="qrcode-image" if="{{currentTab === 0}}" src="../../common/assets/donationQRcode/alipay_qrcode.png">
-        </image>
-        <image class="qrcode-image" if="{{currentTab === 1}}" src="../../common/assets/donationQRcode/wechat_qrcode.png">
-        </image>
-      </div>
-
-      <text class="thanks-text">感谢您的支持！</text>
-    </div>
-  </div>
+		<!-- 底部按钮区域 -->
+		<div class="footer">
+			<image class="payway-btn"
+				src="{{ currentTab === 0 ? '/common/assets/donationWayButton/wechatpayButton.png' : '/common/assets/donationWayButton/alipayButton.png' }}"
+				onclick="togglePayment"></image>
+		</div>
+	</div>
 </template>
 
 <script>
-import router from "@system.router"
+import router from "@system.router";
 
 export default {
-  private: {
-    currentTab: 1 // 默认微信
-  },
+	private: {
+		currentTab: 1, // 0: 支付宝二维码, 1: 微信二维码
+		version: "",
+	},
 
-  setTab(index) {
-    this.currentTab = index
-  },
+	onInit() {
+		console.log("捐赠页面初始化完成");
+	},
 
-  routeBack() {
-    router.back()
-  }
-}
+	// 切换支付方式
+	togglePayment() {
+		this.currentTab = this.currentTab === 0 ? 1 : 0;
+	},
+
+	// 返回上一页
+	backToPrevious() {
+		router.back();
+	},
+};
 </script>
 
 <style>
+/* 基础容器样式 */
 .container {
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  min-height: 480px;
-  background-color: #1a2e22;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	height: 100%;
+	min-width: 336px;
+	min-height: 480px;
+	background-color: #1a2e22;
+	padding: 0;
 }
 
-/* 头部样式 */
+/* 顶部返回按钮区域 */
 .header {
-  width: 84%;
-  height: 80px;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px; /* 减少间距 */
-  padding: 0 8%;
+	width: 100%;
+	height: 180px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-top: 10px;
 }
 
+/* 返回按钮图片 */
 .back-btn {
-  width: 70px;
-  height: 40px;
-  background-color: #53a47a;
-  border: 2px solid #b5dbc7;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  border-radius: 14px;
+	width: 180px;
+	height: 180px;
 }
 
-.back-icon {
-  font-size: 28px;
-  color: #e8f3f5;
-}
-
-.title {
-  font-size: 36px;
-  color: #bfe1d8;
-  font-weight: bold;
-}
-
-.empty-btn {
-  width: 70px;
-}
-
+/* 主内容区域 */
 .main-area {
-  width: 90%;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px 0; /* 减少内边距 */
+	width: 100%;
+	flex-grow: 1;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	margin: 0;
 }
 
-/* 支付选项样式 */
-.payment-options {
-  flex-direction: row;
-  width: 100%;
-  justify-content: center;
-  margin-bottom: 15px; /* 减少间距 */
-  padding: 0 5%;
-}
-
-.option {
-  width: 140px;
-  height: 60px;
-  justify-content: center;
-  align-items: center;
-  margin: 0 15px;
-  border-radius: 14px;
-}
-
-.option.wechat {
-  background-color: #1aad19;
-}
-
-.option.alipay {
-  background-color: #00a0e9;
-}
-
-.option text {
-  font-size: 28px;
-  color: #fff;
-}
-
-.option.active {
-  background-color: #69ba83;
-  box-shadow: 0 4px 8px rgba(65, 184, 118, 0.4);
-}
-
-/* 二维码区域（最大尺寸） */
+/* 二维码容器 */
 .qrcode-container {
-  width: 340px; /* 最大尺寸 */
-  height: 340px; /* 保持1:1比例 */
-  padding: 10px;
-  background-color: #69ba83;
-  border-radius: 20px;
-  margin-bottom: 10px; /* 减少间距 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative; /* 为点赞图标定位 */
+	width: 450px; /* 固定宽度 */
+	height: 450px; /* 固定高度 */
+	background-color: #69ba83;
+	border-radius: 24px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px;
 }
 
+/* 二维码图片 - 确保显示 */
 .qrcode-image {
-  width: 320px; /* 最大尺寸 */
-  height: 320px; /* 保持1:1比例 */
-  border-radius: 12px;
+	width: 100%;
+	height: 100%;
+	border-radius: 12px;
+	object-fit: contain; /* 保持比例 */
 }
 
-/* 点赞图标 */
-.like-icon {
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
+/* 底部按钮区域 */
+.footer {
+	width: 100%;
+	height: 180px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-bottom: 10px;
 }
 
-.thanks-text {
-  font-size: 28px;
-  color: #b5dbc7;
-  margin-top: 5px; /* 减少间距 */
+/* 支付方式切换按钮 */
+.payway-btn {
+	width: 180px;
+	height: 180px;
 }
 </style>
