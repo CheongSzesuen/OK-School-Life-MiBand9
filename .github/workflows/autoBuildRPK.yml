@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TEMP_SIGN_DIR: ${{ github.workspace }}/.temp_sign
-      BUILD_OUTPUT: OK_School_Life-MiBand9Pro-${{ github.ref_name }}.rpk
+      # Fixed version number extraction using format function
+      BUILD_OUTPUT: fun.okschoollife.miband.beta.release.${{ format('{0}', github.ref_name) }}.rpk
 
     steps:
       # 1. 代码检出（保留完整git历史）
@@ -91,8 +92,9 @@ jobs:
             exit 1
           fi
           
-          # 重命名输出文件
-          mv dist/*.rpk $BUILD_OUTPUT
+          # 重命名输出文件（使用shell命令移除v前缀）
+          VERSION=$(echo "${{ github.ref_name }}" | sed 's/^v//')
+          mv dist/*.rpk "fun.okschoollife.miband.beta.release.$VERSION.rpk"
 
       # 7. 精确匹配的更新日志生成
       - name: Generate precise changelog
@@ -105,15 +107,16 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/releases/latest | \
             jq -r '.tag_name // empty')
           
-          # 生成精确格式的日志（标题与内容分离处理）
-          echo "CHANGELOG_TITLE=## 📝 更新日志 ${PREV_RELEASE:-初始版本} → ${{ github.ref_name }}" >> $GITHUB_ENV
-          echo "CHANGELOG_BODY<<EOF" >> $GITHUB_ENV
-          git log --pretty=format:"- **%s**%n  贡献者：%an <%ae>%n  提交时间：%ad%n  %b" \
+          # 生成精确格式的日志（直接输出到环境文件）
+          CHANGELOG_TITLE="## 📝 更新日志 ${PREV_RELEASE:-初始版本} → ${{ github.ref_name }}"
+          CHANGELOG_BODY=$(git log --pretty=format:"- **%s**%n  贡献者：%an <%ae>%n  提交时间：%ad%n  %b" \
             --date=format:"%Y-%m-%d %H:%M:%S" \
             ${PREV_RELEASE:+$PREV_RELEASE..}${{ github.ref_name }} | \
             sed '/^  $/d' | \
-            sed 's/^  $$BUG$$/[BUG]/' >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+            sed 's/^  $$BUG$$/[BUG]/')
+          
+          echo "CHANGELOG_TITLE=${CHANGELOG_TITLE}" >> $GITHUB_ENV
+          echo "CHANGELOG_BODY=${CHANGELOG_BODY}" >> $GITHUB_ENV
 
       # 8. 获取构建元数据
       - name: Gather metadata
@@ -149,7 +152,7 @@ jobs:
             - 🏷️ 标签: ${{ github.ref_name }}
             - 🔗 提交: [${{ steps.meta.outputs.short_sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
             - 🔐 签名状态: ${{ steps.meta.outputs.sign_status }}
-            - 📦 构建产物: ${{ env.BUILD_OUTPUT }}
-          files: ${{ env.BUILD_OUTPUT }}
+            - 📦 构建产物: fun.okschoollife.miband.beta.release.${{ format('{0}', github.ref_name) }}.rpk
+          files: fun.okschoollife.miband.beta.release.${{ format('{0}', github.ref_name) }}.rpk
           draft: false
           prerelease: false
