@@ -17,7 +17,7 @@
 				<list class="options-list" if="{{showOptions}}">
 					<list-item for="{{options}}" class="btn" type="option-item" onclick="onOptionClick($item.key)">
 						<div class="btn-content">
-							<marquee class="btn-marquee" scrollamount="25" loop="-1">
+							<marquee class="btn-marquee" scrollamount="70" loop="-1">
 								{{ $item.text }}
 							</marquee>
 						</div>
