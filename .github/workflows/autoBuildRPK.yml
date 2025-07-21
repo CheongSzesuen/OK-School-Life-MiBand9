@@ -98,29 +98,29 @@ jobs:
 
       # 7. 精确匹配的更新日志生成
       - name: Generate precise changelog
-      id: changelog
-      run: |
-      # 获取上一个release的tag
-      PREV_RELEASE=$(curl -s \
-      -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-      -H "Accept: application/vnd.github.v3+json" \
-      https://api.github.com/repos/${{ github.repository }}/releases/latest | \
-      jq -r '.tag_name // empty')
-    
-    # 使用更安全的格式生成日志
-      {
-        echo "CHANGELOG_TITLE<<EOF"
-        echo "## 📝 更新日志 ${PREV_RELEASE:-初始版本} → ${{ github.ref_name}}"
-        echo "EOF"
-      
-       echo "CHANGELOG_BODY<<EOF"
-        git log --pretty=format:"- **%s**%n  贡献者：%an <%ae>%n  提交时间：%ad%n  %b" \
-         --date=format:"%Y-%m-%d %H:%M:%S" \
-         ${PREV_RELEASE:+$PREV_RELEASE..}${{ github.ref_name }} | \
-          sed '/^  $/d' | \
-          sed 's/^  $$BUG$$/[BUG]/'
-        echo "EOF"
-      } >> $GITHUB_ENV
+        id: changelog
+        run: |
+          # 获取上一个release的tag
+          PREV_RELEASE=$(curl -s \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/releases/latest | \
+            jq -r '.tag_name // empty')
+          
+          # 使用更安全的格式生成日志
+          {
+            echo "CHANGELOG_TITLE<<EOF"
+            echo "## 📝 更新日志 ${PREV_RELEASE:-初始版本} → ${{ github.ref_name }}"
+            echo "EOF"
+            
+            echo "CHANGELOG_BODY<<EOF"
+            git log --pretty=format:"- **%s**%n  贡献者：%an <%ae>%n  提交时间：%ad%n  %b" \
+              --date=format:"%Y-%m-%d %H:%M:%S" \
+              ${PREV_RELEASE:+$PREV_RELEASE..}${{ github.ref_name }} | \
+              sed '/^  $/d' | \
+              sed 's/^  $$BUG$$/[BUG]/'
+            echo "EOF"
+          } >> $GITHUB_ENV
 
       # 8. 获取构建元数据
       - name: Gather metadata
