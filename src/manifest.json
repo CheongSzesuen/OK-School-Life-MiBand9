@@ -1,7 +1,7 @@
 {
   "package": "fun.okschoollife.miband.beta",
   "name": "OK School Life",
-  "versionName": "0.3.1",
+  "versionName": "0.3.2",
   "versionCode": 0.1,
   "minPlatformVersion": 1000,
   "icon": "/common/assets/icon/icon-v4-final.png",
@@ -24,17 +24,7 @@
     "designedWidth": "192",
     "designedHeight": "490"
   },
-  "permissions": [
-    {
-      "name": "system.storage"
-    },
-    {
-      "name": "system.prompt"
-    },
-    {
-      "name": "system.router"
-    }
-  ],
+  "permissions": [],
   "resources": {
     "files": [
       "$src/common/data/events.json"
@@ -60,6 +50,9 @@
       },
       "pages/donation": {
         "component": "donation"
+      },
+      "pages/setting": {
+        "component": "setting"
       }
     }
   }

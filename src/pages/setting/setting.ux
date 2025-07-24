@@ -1,0 +1,260 @@
+<template>
+	<div class="container">
+		<!-- 顶部返回按钮 -->
+		<div class="header">
+			<image
+				class="back-btn"
+				src="../../common/assets/backButton/backButton.png"
+				onclick="backToPrevious"
+			></image>
+		</div>
+
+		<!-- 主内容区域 -->
+		<div class="main-area">
+			<!-- 跑马灯预览区域 -->
+			<div class="preview-section">
+				<text class="section-title">跑马灯速度</text>
+				<div class="preview-item">
+					<!-- 修改1：统一使用currentQuote -->
+					<marquee scrollamount="{{ speed }}" loop="-1" direction="left">
+						{{ currentQuote }}
+					</marquee>
+				</div>
+			</div>
+
+			<!-- 速度调节区域 -->
+			<div class="speed-control">
+				<text class="section-title">调整速度</text>
+				<div class="control-buttons">
+					<image
+						class="control-btn"
+						src="../../common/assets/minus-plus/plusButton.png"
+						onclick="increaseSpeed"
+					></image>
+					<text class="speed-value">{{ speed }}</text>
+					<image
+						class="control-btn"
+						src="../../common/assets/minus-plus/minusButton.png"
+						onclick="decreaseSpeed"
+					></image>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>
+
+<script>
+import router from "@system.router";
+import storage from "@system.storage";
+import philosophyQuotes from "../../common/data/sentences.json";
+
+export default {
+	private: {
+		speed: 50,
+		quotes: [],
+		currentQuote: "", // 修改2：保持变量名一致
+		defaultQuotes: [
+			"哲学家们只是用不同的方式解释世界，而问题在于改变世界。",
+			"全世界的无产者，联合起来！",
+			"为人民服务！人民万岁！",
+		],
+	},
+
+	onInit() {
+		console.log("页面初始化，默认速度:", this.speed);
+		this.loadQuotesData();
+		this.loadSpeedFromStorage();
+		this.showRandomQuote();
+	},
+
+	backToPrevious() {
+		router.back();
+	},
+
+	loadQuotesData() {
+		try {
+			// 修改3：添加数据格式验证
+			const rawData =
+				philosophyQuotes.philosophy_quotes || philosophyQuotes.sentences || [];
+			this.quotes = Array.isArray(rawData)
+				? rawData.filter((item) => typeof item === "string")
+				: this.defaultQuotes;
+			console.log("成功加载语录数据，数量:", this.quotes.length);
+		} catch (e) {
+			console.error("加载语录数据失败，使用默认语录:", e);
+			this.quotes = this.defaultQuotes;
+		}
+	},
+
+	loadSpeedFromStorage() {
+		storage.get({
+			key: "marquee_speed",
+			success: (data) => {
+				console.log("从storage获取到的速度数据:", data);
+				if (data !== undefined && data !== null && data !== "") {
+					const savedSpeed = parseInt(data);
+					if (!isNaN(savedSpeed) && savedSpeed >= 10 && savedSpeed <= 250) {
+						this.speed = savedSpeed;
+						console.log("使用存储的速度值:", this.speed);
+					}
+				}
+			},
+			fail: (err, code) => {
+				console.error("读取存储失败:", code, err);
+			},
+		});
+	},
+
+	saveCurrentSpeed() {
+		storage.set({
+			key: "marquee_speed",
+			value: this.speed.toString(),
+			success: () => {
+				console.log("速度保存成功:", this.speed);
+			},
+			fail: (err, code) => {
+				console.error("保存速度失败:", code, err);
+			},
+		});
+	},
+
+	increaseSpeed() {
+		if (this.speed < 250) {
+			this.speed += 10;
+			this.saveCurrentSpeed();
+		} else {
+			console.log("已达到最大速度");
+		}
+	},
+
+	decreaseSpeed() {
+		if (this.speed > 10) {
+			this.speed -= 10;
+			this.saveCurrentSpeed();
+		} else {
+			console.log("已达到最小速度");
+		}
+	},
+
+	getRandomQuote() {
+		try {
+			if (!this.quotes || this.quotes.length === 0) {
+				console.warn("语录数组为空，使用默认语录");
+				return this.defaultQuotes[
+					Math.floor(Math.random() * this.defaultQuotes.length)
+				];
+			}
+			return this.quotes[Math.floor(Math.random() * this.quotes.length)];
+		} catch (e) {
+			console.error("获取随机语录失败:", e);
+			return this.defaultQuotes[0];
+		}
+	},
+
+	showRandomQuote() {
+		this.currentQuote = this.getRandomQuote();
+		console.log("当前显示语录:", this.currentQuote);
+		// 修改4：强制更新视图
+		this.$forceUpdate();
+	},
+};
+</script>
+
+<style>
+/* 样式保持不变 */
+.container {
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	background-color: #1a2e22;
+	padding: 0;
+	margin: 0;
+}
+
+.header {
+	width: 100%;
+	height: 180px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	padding-top: 10px;
+}
+
+.back-btn {
+	width: 180px;
+	height: 180px;
+}
+
+.main-area {
+	flex-grow: 1;
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 10px 20px;
+}
+
+.section-title {
+	font-size: 70px;
+	font-weight: 700;
+	color: rgba(255, 255, 255, 0.8);
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+.preview-section {
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 30px;
+}
+
+.preview-item {
+	width: 100%;
+	height: 160px;
+	margin: 10px 0;
+	border-radius: 40px;
+	background-color: #69ba83;
+	justify-content: center;
+	align-items: center;
+	padding: 15px 20px;
+	box-shadow: 0 5px 15px rgba(83, 164, 122, 0.4);
+}
+
+marquee {
+	font-size: 60px;
+	color: #fff;
+	font-weight: bold;
+	width: 100%;
+}
+
+.speed-control {
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 20px;
+}
+
+.control-buttons {
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	margin-top: 10px;
+}
+
+.control-btn {
+	width: 200px;
+	height: 200px;
+	margin: 5px 0;
+}
+
+.speed-value {
+	font-size: 80px;
+	color: #ffffff;
+	font-weight: bold;
+	margin: 10px 0;
+	min-width: 100px;
+	text-align: center;
+}
+</style>

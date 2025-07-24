@@ -2,23 +2,35 @@
 	<div class="container">
 		<!-- 顶部容器 -->
 		<div class="header">
-			<image class="back-btn" src="../../common/assets/backButton/backButton.png" onclick="backToindex"></image>
+			<image
+				class="back-btn"
+				src="../../common/assets/backButton/backButton.png"
+				onclick="backToindex"
+			></image>
 		</div>
 
 		<!-- 主内容区域 -->
 		<div class="main-area">
 			<!-- 加载状态 -->
-			<div class="loading-state" if="{{isLoading}}">
+			<div class="loading-state" if="{{ isLoading }}">
 				<text class="loading-text">加载中...</text>
 			</div>
 
 			<!-- 成就列表 -->
-			<div class="achievement-content" if="{{!isLoading}}">
+			<div class="achievement-content" if="{{ !isLoading }}">
 				<list class="achievement-list">
-					<list-item for="{{achievements}}" class="achievement-item" type="achievement-item">
+					<list-item
+						for="{{ achievements }}"
+						class="achievement-item"
+						type="achievement-item"
+					>
 						<text class="achievement-text">{{ $item }}</text>
 					</list-item>
-					<list-item if="{{achievements.length === 0}}" class="empty-state" type="empty-item">
+					<list-item
+						if="{{ achievements.length === 0 }}"
+						class="empty-state"
+						type="empty-item"
+					>
 						<text class="empty-text">暂无成就</text>
 					</list-item>
 				</list>
@@ -27,8 +39,11 @@
 
 		<!-- 底部区域 -->
 		<div class="footer">
-			<image class="delete-btn" src="../../common/assets/deleteButton/deleteButton.png" onclick="clearAchievements">
-			</image>
+			<image
+				class="delete-btn"
+				src="../../common/assets/deleteButton/deleteButton.png"
+				onclick="clearAchievements"
+			></image>
 		</div>
 	</div>
 </template>
@@ -204,8 +219,8 @@ export default {
 
 /* 返回按钮图片 */
 .back-btn {
-	width: 190px;
-	height: 190px;
+	width: 180px;
+	height: 180px;
 	margin-bottom: 10px;
 }
 
@@ -300,7 +315,7 @@ export default {
 
 /* 删除按钮图片 */
 .delete-btn {
-	width: 190px;
-	height: 190px;
+	width: 180px;
+	height: 180px;
 }
 </style>
